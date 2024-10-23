@@ -2,10 +2,10 @@
 
 ssh_pwauth: True
 
+# User
 users:
   - default
 
-# User
 system_info:
   default_user:
     name: adonis

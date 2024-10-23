@@ -11,6 +11,12 @@ declare -r SCRIPT_PATH
 declare -r USER='adonis'
 declare -r HOST='192.168.105.2'
 
+function clean {
+	local origin_image="${SCRIPT_PATH}/ubuntu.qcow2"
+
+	rm -f "${origin_image}"
+}
+
 function install_socket_vmnet() {
 	if ! command -v socket_vmnet_client &>/dev/null; then
 		brew install socket_vmnet
@@ -65,8 +71,7 @@ function create_disks() {
 	if [[ -z "$(find . -mindepth 1 -maxdepth 1 -name '*.img')" ]]; then
 		local origin_image="${SCRIPT_PATH}/ubuntu.qcow2"
 		cp "cloud_image/${cloud_image}" "${origin_image}"
-		# shellcheck disable=SC2064
-		trap "rm -f ${origin_image}" EXIT
+		trap clean EXIT
 
 		qemu-img resize "${origin_image}" "${system_disk_size}"
 		qemu-img convert -f qcow2 -O raw -o preallocation=full "${origin_image}" ubuntu.img
