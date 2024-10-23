@@ -30,7 +30,7 @@ write_files:
       network: { config: disabled }
 
   - path: /etc/netplan/enp0s1-config.yaml
-    permissions: '0644'
+    permissions: '0600'
     content: |
       network:
         version: 2

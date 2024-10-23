@@ -71,6 +71,8 @@ function create_disks() {
 		qemu-img resize "${origin_image}" "${system_disk_size}"
 		qemu-img convert -f qcow2 -O raw -o preallocation=full "${origin_image}" ubuntu.img
 		qemu-img create -f raw -o preallocation=full data.img "${data_disk_size}"
+
+		rm "${origin_image}"
 	fi
 }
 
