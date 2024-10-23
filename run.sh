@@ -21,7 +21,7 @@ function install_socket_vmnet() {
 
 function get_cloud_image() {
 	local arch="${1}"
-	local url="https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-${arch}.img"
+	local url="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-${arch}.img"
 
 	echo "${url}"
 }
