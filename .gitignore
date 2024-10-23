@@ -1,0 +1,6 @@
+QEMU_EFI.fd
+cloud-init.iso
+*.img
+
+.cloud-localds/
+cloud_image/

@@ -1,0 +1,51 @@
+#cloud-config
+
+ssh_pwauth: True
+
+users:
+  - default
+
+# User
+system_info:
+  default_user:
+    name: adonis
+    # openssl passwd -6
+    passwd: $6$L4RYt4.PrvRtw8Cy$a/EkpMBdVKQAAJyznMfQ6e.E7c8bfcUQ/uqKlFDb2rQZY11JzkSE8HVsXhFECeysRfC3aU15j5xu2l3B0uCeT1
+    lock_passwd: False
+    groups: [adm, sudo]
+
+# Disk
+fs_setup:
+  - device: /dev/vdc
+    filesystem: ext4
+
+mounts:
+  - [vdc, /home]
+
+# Network
+write_files:
+  - path: /etc/cloud/cloud.cfg.d/99-custom-networking.cfg
+    permissions: '0644'
+    content: |
+      network: { config: disabled }
+
+  - path: /etc/netplan/enp0s1-config.yaml
+    permissions: '0644'
+    content: |
+      network:
+        version: 2
+        ethernets:
+          enp0s1:
+            dhcp4: false
+            addresses: [192.168.105.2/24]
+            nameservers:
+              addresses: [192.168.105.1]
+            routes:
+              - to: default
+                via: 192.168.105.1
+
+runcmd:
+  - rm /etc/netplan/50-cloud-init.yaml
+  - netplan generate
+  - netplan apply
+

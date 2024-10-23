@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_PATH="$(
+	cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+	pwd
+)"
+declare -r SCRIPT_PATH
+declare -r CLOUD_LOCALDS_HOME="${SCRIPT_PATH}/.cloud-localds"
+
+function main() {
+	local CLOUD_LOCALDS_BIN_PATH="${CLOUD_LOCALDS_HOME}/bin"
+	mkdir -p "${CLOUD_LOCALDS_BIN_PATH}"
+	export PATH="${CLOUD_LOCALDS_BIN_PATH}:${PATH}"
+
+	if ! command -v mkisofs &>/dev/null; then
+		brew install cdrtools
+	fi
+
+	if ! command -v cloud-localds &>/dev/null; then
+		curl -L 'https://raw.githubusercontent.com/canonical/cloud-utils/refs/heads/main/bin/cloud-localds' |
+			sed 's/genisoimage/mkisofs/g' >"${CLOUD_LOCALDS_BIN_PATH}/cloud-localds"
+		chmod a+x "${CLOUD_LOCALDS_BIN_PATH}/cloud-localds"
+	fi
+
+	cloud-localds "${@}"
+}
+
+main "$@"
