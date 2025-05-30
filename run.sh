@@ -47,14 +47,6 @@ function download_cloud_image() {
 	popd &>/dev/null
 }
 
-function download_bios() {
-	local url='https://releases.linaro.org/components/kernel/uefi-linaro/latest/release/qemu64/QEMU_EFI.fd'
-
-	if [[ ! -f "$(basename "${url}")" ]]; then
-		curl -LO "${url}"
-	fi
-}
-
 function gen_iso() {
 	rm -f "${SCRIPT_PATH}/cloud-init.iso"
 
@@ -101,9 +93,9 @@ function run() {
 		-m 12G \
 		-device virtio-net-pci,netdev=net0 -netdev socket,id=net0,fd=3 \
 		-cdrom cloud-init.iso \
+		-drive if=pflash,format=raw,readonly=on,file=/opt/homebrew/opt/qemu/share/qemu/edk2-aarch64-code.fd \
 		-drive if=virtio,format=raw,file=ubuntu.img \
 		-drive if=virtio,format=raw,file=data.img \
-		-bios QEMU_EFI.fd \
 		-nographic "${@}"
 }
 
@@ -112,7 +104,6 @@ function main() {
 
 	install_socket_vmnet
 	download_cloud_image 'arm64'
-	download_bios
 	gen_iso
 	create_disks 'arm64' '32G' '64G'
 	run "${@}"
