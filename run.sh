@@ -88,9 +88,14 @@ function run() {
 		fi
 	done
 
+	machine='virt'
+	if [[ "${arch}" == 'x86_64' ]]; then
+		machine='q35'
+	fi
+
 	socket_vmnet_client /opt/homebrew/var/run/socket_vmnet \
-		qemu-system-aarch64 \
-		-machine virt,accel=hvf \
+		"qemu-system-${arch}" \
+		-machine "${machine}",accel=hvf \
 		-cpu host \
 		-smp 6 \
 		-m 12G \
