@@ -20,7 +20,6 @@ function clean {
 function install_socket_vmnet() {
 	if ! command -v socket_vmnet_client &>/dev/null; then
 		brew install socket_vmnet
-		brew tap homebrew/services
 		sudo brew services start socket_vmnet
 	fi
 }
@@ -89,19 +88,21 @@ function run() {
 	done
 
 	machine='virt'
+	cpu='host'
 	if [[ "${arch}" == 'x86_64' ]]; then
 		machine='q35'
+		cpu="${cpu},-pdpe1gb"
 	fi
 
-	socket_vmnet_client /opt/homebrew/var/run/socket_vmnet \
+	socket_vmnet_client "$(brew --prefix)/var/run/socket_vmnet" \
 		"qemu-system-${arch}" \
 		-machine "${machine}",accel=hvf \
-		-cpu host \
+		-cpu "${cpu}" \
 		-smp 6 \
 		-m 12G \
 		-device virtio-net-pci,netdev=net0 -netdev socket,id=net0,fd=3 \
 		-cdrom cloud-init.iso \
-		-drive if=pflash,format=raw,readonly=on,file="/opt/homebrew/opt/qemu/share/qemu/edk2-${arch}-code.fd" \
+		-drive if=pflash,format=raw,readonly=on,file="$(brew --prefix)/opt/qemu/share/qemu/edk2-${arch}-code.fd" \
 		-drive if=virtio,format=raw,file=ubuntu.img \
 		-drive if=virtio,format=raw,file=data.img \
 		-nographic "${@}"
@@ -109,6 +110,11 @@ function run() {
 
 function main() {
 	pushd "${SCRIPT_PATH}" &>/dev/null
+
+	if [[ ! -d "$(brew --prefix)/opt/socket_vmnet" ]] || ! command -v socket_vmnet_client &>/dev/null; then
+		PATH="$(brew --prefix)/opt/socket_vmnet/bin:${PATH}"
+		export PATH
+	fi
 
 	install_socket_vmnet
 	download_cloud_image 'arm64'
