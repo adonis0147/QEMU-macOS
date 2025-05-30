@@ -74,6 +74,9 @@ function create_disks() {
 }
 
 function run() {
+	local arch="${1}"
+	shift 1
+
 	local disks=(
 		'ubuntu.img'
 		'data.img'
@@ -93,7 +96,7 @@ function run() {
 		-m 12G \
 		-device virtio-net-pci,netdev=net0 -netdev socket,id=net0,fd=3 \
 		-cdrom cloud-init.iso \
-		-drive if=pflash,format=raw,readonly=on,file=/opt/homebrew/opt/qemu/share/qemu/edk2-aarch64-code.fd \
+		-drive if=pflash,format=raw,readonly=on,file="/opt/homebrew/opt/qemu/share/qemu/edk2-${arch}-code.fd" \
 		-drive if=virtio,format=raw,file=ubuntu.img \
 		-drive if=virtio,format=raw,file=data.img \
 		-nographic "${@}"
@@ -106,7 +109,7 @@ function main() {
 	download_cloud_image 'arm64'
 	gen_iso
 	create_disks 'arm64' '32G' '64G'
-	run "${@}"
+	run 'aarch64' "${@}"
 
 	popd &>/dev/null
 }
