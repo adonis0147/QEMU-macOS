@@ -32,7 +32,10 @@ function get_cloud_image() {
 }
 
 function download_cloud_image() {
-	local arch="${1}"
+	local arch
+	arch="$(uname -m)"
+	arch="${arch/x86_64/amd64}"
+
 	local url
 	url="$(get_cloud_image "${arch}")"
 
@@ -53,9 +56,12 @@ function gen_iso() {
 }
 
 function create_disks() {
-	local arch="${1}"
-	local system_disk_size="${2}"
-	local data_disk_size="${3}"
+	local arch
+	arch="$(uname -m)"
+	arch="${arch/x86_64/amd64}"
+
+	local system_disk_size="${1}"
+	local data_disk_size="${2}"
 	local cloud_image
 	cloud_image="$(basename "$(get_cloud_image "${arch}")")"
 
@@ -73,8 +79,9 @@ function create_disks() {
 }
 
 function run() {
-	local arch="${1}"
-	shift 1
+	local arch
+	arch="$(uname -m)"
+	arch="${arch/arm64/aarch64}"
 
 	local disks=(
 		'ubuntu.img'
@@ -117,10 +124,10 @@ function main() {
 	fi
 
 	install_socket_vmnet
-	download_cloud_image 'arm64'
+	download_cloud_image
 	gen_iso
-	create_disks 'arm64' '32G' '64G'
-	run 'aarch64' "${@}"
+	create_disks '32G' '64G'
+	run "${@}"
 
 	popd &>/dev/null
 }
