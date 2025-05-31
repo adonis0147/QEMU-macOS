@@ -45,7 +45,7 @@ write_files:
                 via: 192.168.105.1
 
 runcmd:
-  - interface="$(ip -br a | awk '{print $1}' | grep -v 'lo')"
+  - interface="$(ip --brief address | awk '{print $1}' | grep -v 'lo')"
   - mv /etc/netplan/enp0s1-config.yaml "/etc/netplan/${interface}-config.yaml" || true
   - sed -i "s/enp0s1/${interface}/" "/etc/netplan/${interface}-config.yaml"
   - rm /etc/netplan/50-cloud-init.yaml
